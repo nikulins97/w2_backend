@@ -22,12 +22,5 @@ const User = sequelize.define('user', {
     tableName: 'users', // имя таблицы в БД
 });
 
-// Экспортируем модель и методы для работы с пользователями
-module.exports = {
-    model: User,
-
-    createUser: async (userData) => {
-        return await User.create(userData);
-    },
-
-};
+// Экспортируем модель
+module.exports = User;

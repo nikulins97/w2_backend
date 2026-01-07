@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 //User router
 const UserRoutes = require("./users/routes");
 
-app.use("/user", UserRoutes);
+app.use("/api", UserRoutes);
 
 
 // Running check
