@@ -1,5 +1,5 @@
 const express = require('express');
-const sequelize = require('./db');
+const prisma = require('./db');
 
 const app = express();
 
@@ -25,11 +25,8 @@ app.get('/status', (req, res) => {
 // Инициализация БД и запуск сервера
 const startServer = async () => {
     try {
-        // Синхронизация моделей с базой данных
-        // force: false - не удаляет существующие таблицы
-        // alter: true - обновляет структуру таблиц при изменении моделей
-        await sequelize.sync({ force: false });
-        console.log('✓ База данных синхронизирована');
+        await prisma.$connect();
+        console.log('✓ База данных подключена');
         
         // Запуск сервера
         app.listen(PORT, () => {
@@ -40,6 +37,11 @@ const startServer = async () => {
         process.exit(1);
     }
 };
+
+process.on('beforeExit', async () => {
+    await prisma.$disconnect();
+    console.log('✓ База данных отключена');
+})
 
 startServer();
 

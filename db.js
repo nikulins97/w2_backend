@@ -1,12 +1,5 @@
-const { Sequelize } = require("sequelize");
+const { PrismaClient } = require("@prisma/client");
 
-const sequelize = new Sequelize({
-    dialect: "sqlite",
-    storage: "w2.db",
-    define: {
-        timestamps: false
-    }
-});
+const prisma = new PrismaClient();
 
-// Экспортируем sequelize для использования в других файлах
-module.exports = sequelize;
+module.exports = prisma;
