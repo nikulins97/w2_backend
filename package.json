@@ -17,9 +17,10 @@
   "author": "sergei-nikulin",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "express": "^5.1.0",
     "pg": "^8.16.3",
-    "sequelize": "^6.37.7",
+    "prisma": "^5.22.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

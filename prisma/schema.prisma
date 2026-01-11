@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../w2.db"
+}
+
+model User {
+  id      Int    @id @default(autoincrement())
+  name    String
+  surname String
+
+  @@map("users")
+}

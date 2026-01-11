@@ -1,16 +1,24 @@
-const User = require("../models/User")
+const prisma = require("../db")
 
 class UserService {
 
     async getUsers() {
-        return await User.findAll({
-            attributes: ['id', 'name', 'surname'],
-            order: [['id', 'ASC']]
+        return await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                surname: true
+            },
+            orderBy: {
+                id: 'asc'
+            }
         });
     }
 
     async getUser(id) {
-        const user = await User.findByPk(id);
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(id)}
+        });
         if (!user) {
             throw new Error('User not found')
         }
@@ -21,20 +29,26 @@ class UserService {
         if(!userData.name || !userData.surname) {
             throw new Error('Missing required fields "name" and "surname"')
         }
-        return await User.create(userData)
+        return await prisma.user.create({
+            data: userData
+        })
     }
 
     async updateUser(id, userData) {
         if(!userData.name || !userData.surname) {
             throw new Error('Missing required fields "name" and "surname"')
         }
-        const user = await this.getUser(id)
-        return await user.update(userData)
+        
+        return await prisma.user.update({
+            where: { id: parseInt(id)},
+            data: userData
+        })
     }
 
     async deleteUser(id) {
-        const user = await this.getUser(id);
-        await user.destroy();
+        await prisma.user.delete({
+            where: { id: parseInt(id)}
+        });
         return { message: 'User is deleted'}
     }
 }
