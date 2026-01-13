@@ -2,12 +2,20 @@ const prisma = require("../db")
 
 class UserService {
 
+    // Removes pass and token from res
+    serializeUser(user) {
+        const { password, refreshToken, ...safeUser } = user;
+        return safeUser;
+    }
+
     async getUsers() {
         return await prisma.user.findMany({
             select: {
                 id: true,
                 name: true,
-                surname: true
+                surname: true,
+                login: true,
+                role: true,
             },
             orderBy: {
                 id: 'asc'
@@ -22,16 +30,17 @@ class UserService {
         if (!user) {
             throw new Error('User not found')
         }
-        return user
+        return this.serializeUser(user);
     }
 
     async createUser(userData) {
         if(!userData.name || !userData.surname) {
             throw new Error('Missing required fields "name" and "surname"')
         }
-        return await prisma.user.create({
+        const user = await prisma.user.create({
             data: userData
-        })
+        });
+        return this.serializeUser(user);
     }
 
     async updateUser(id, userData) {
@@ -39,10 +48,11 @@ class UserService {
             throw new Error('Missing required fields "name" and "surname"')
         }
         
-        return await prisma.user.update({
+        const user = await prisma.user.update({
             where: { id: parseInt(id)},
             data: userData
-        })
+        });
+        return this.serializeUser(user);
     }
 
     async deleteUser(id) {

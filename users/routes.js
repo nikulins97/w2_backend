@@ -1,20 +1,21 @@
 const router = require("express").Router();
 const UserController = require("../controllers/UserController");
+const authMiddleware = require("../auth/middleware/authMiddleware")
 
-// GET все пользователи
+// GET api/getUsers
 router.get("/getUsers", UserController.getUsers);
 
-//GET пользователь по ID
-router.get("/getUser/:id", UserController.getUser);
+//GET api/getUser
+router.get("/getUser/:id", authMiddleware, UserController.getUser);
 
-// POST создать пользователя
-router.post("/createUser", UserController.createUser);
+// POST api/createUser
+router.post("/createUser", authMiddleware, UserController.createUser);
 
-// PUT обновить пользователя
-router.put("/updateUser/:id", UserController.updateUser);
+// PUT api/updateUser
+router.put("/updateUser/:id", authMiddleware, UserController.updateUser);
 
 // DELETE удалить пользователя
-router.delete("/deleteUser/:id", UserController.deleteUser);
+router.delete("/deleteUser/:id", authMiddleware, UserController.deleteUser);
 
 module.exports = router;
 
