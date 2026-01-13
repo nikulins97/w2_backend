@@ -79,7 +79,6 @@ module.exports = {
   logout: async (req, res) => {
     try {
       const userId = req.user.userId; // Из middleware
-      console.log(userId, '  ', req.user)
 
       await AuthService.logout(userId);
 
