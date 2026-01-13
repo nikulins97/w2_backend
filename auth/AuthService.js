@@ -34,7 +34,6 @@ class AuthService {
         const { login, password, name, surname, role = "EMPLOYEE"} = userData
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        console.log(password, '  ', hashedPassword)
 
         const user = await prisma.user.create({
             data: {
