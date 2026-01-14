@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const AuthController = require('./AuthController');
-const authMiddleware = require('./middleware/authMiddleware');
-const { validateSchema } = require('./middleware/schemaValidation');
+const authMiddleware = require('../middleware/authMiddleware');
+const { validateSchema } = require('../middleware/schemaValidation');
 const { loginSchema, registerSchema, refreshTokenSchema } = require('./schemas');
 
 // POST /api/auth/register
