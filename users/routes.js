@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const UserController = require("./UserController");
-const authMiddleware = require("../auth/middleware/authMiddleware")
+const authMiddleware = require("../middleware/authMiddleware");
+const { validateSchema } = require("../middleware/schemaValidation");
+const { createUserSchema, updateUserSchema } = require("./schemas");
 
 // GET api/getUsers
 router.get("/getUsers", UserController.getUsers);
@@ -9,13 +11,24 @@ router.get("/getUsers", UserController.getUsers);
 router.get("/getUser/:id", authMiddleware, UserController.getUser);
 
 // POST api/createUser
-router.post("/createUser", authMiddleware, UserController.createUser);
+router.post("/createUser", 
+  validateSchema(createUserSchema, 'body'),
+  authMiddleware, 
+  UserController.createUser
+);
 
 // PUT api/updateUser
-router.put("/updateUser/:id", authMiddleware, UserController.updateUser);
+router.put("/updateUser/:id", 
+  validateSchema(updateUserSchema, 'body'),
+  authMiddleware, 
+  UserController.updateUser
+);
 
-// DELETE удалить пользователя
-router.delete("/deleteUser/:id", authMiddleware, UserController.deleteUser);
+// DELETE api/deleteUser
+router.delete("/deleteUser/:id", 
+  authMiddleware, 
+  UserController.deleteUser
+);
 
 module.exports = router;
 
