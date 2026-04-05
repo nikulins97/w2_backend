@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { hashValue } = require("../utils/hash");
 require("dotenv").config();
 
 
@@ -25,13 +26,13 @@ class AuthService {
     }
 
     async hashToken(token) {
-        return await bcrypt.hash(token, 10);
+        return await hashValue(token);
     }
 
     async register(userData) {
         const { login, password, name, surname, role = "EMPLOYEE" } = userData;
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await hashValue(password);
 
         const user = await this.repo.create({
             login,
