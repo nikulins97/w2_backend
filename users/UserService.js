@@ -1,3 +1,5 @@
+const { hashValue } = require('../utils/hash');
+
 class UserService {
     constructor(userRepository) {
         this.repo = userRepository;
@@ -21,17 +23,22 @@ class UserService {
     }
 
     async createUser(userData) {
-        if (!userData.name || !userData.surname) {
-            throw new Error('Missing required fields "name" and "surname"');
-        }
-        const user = await this.repo.create(userData);
+        const { login, password, name, surname, role } = userData;
+
+        const hashedPassword = await hashValue(password);
+
+        const user = await this.repo.create({
+            login,
+            password: hashedPassword,
+            name,
+            surname,
+            role,
+        });
+
         return this.serializeUser(user);
     }
 
     async updateUser(id, userData) {
-        if (!userData.name || !userData.surname) {
-            throw new Error('Missing required fields "name" and "surname"');
-        }
         const user = await this.repo.update({ id: parseInt(id) }, userData);
         return this.serializeUser(user);
     }
