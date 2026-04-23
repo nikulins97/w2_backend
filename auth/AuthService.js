@@ -1,6 +1,5 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { hashValue } = require("../utils/hash");
+const { hashValue, compareValues } = require("../utils/hash");
+const { signToken, verifyToken } = require("../utils/token");
 require("dotenv").config();
 
 
@@ -10,7 +9,7 @@ class AuthService {
     }
 
     generateAccessToken(userId, login, role) {
-        return jwt.sign(
+        return signToken(
             { userId, login, role },
             process.env.JWT_ACCESS_SECRET,
             { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
@@ -18,15 +17,11 @@ class AuthService {
     }
 
     generateRefreshToken(userId, login, role) {
-        return jwt.sign(
+        return signToken(
             { userId, login, role },
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
         );
-    }
-
-    async hashToken(token) {
-        return await hashValue(token);
     }
 
     async register(userData) {
@@ -58,7 +53,7 @@ class AuthService {
             throw new Error("Invalid login");
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await compareValues(password, user.password);
 
         if (!isPasswordValid) {
             throw new Error("Invalid password");
@@ -67,7 +62,7 @@ class AuthService {
         const accessToken = this.generateAccessToken(user.id, user.login, user.role);
         const refreshToken = this.generateRefreshToken(user.id, user.login, user.role);
 
-        const hashedRefreshToken = await this.hashToken(refreshToken);
+        const hashedRefreshToken = await hashValue(refreshToken);
 
         await this.repo.update({ id: user.id }, { refreshToken: hashedRefreshToken });
 
@@ -82,7 +77,7 @@ class AuthService {
                 role: user.role,
             },
         };
-    }
+    }   
 
     async logout(userId) {
         await this.repo.update({ id: parseInt(userId) }, { refreshToken: null });
@@ -91,7 +86,7 @@ class AuthService {
 
     async refresh(refreshToken) {
         try {
-            const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+            const decoded = await verifyToken(refreshToken, process.env.JWT_REFRESH_SECRET);
 
             const user = await this.repo.findUnique({ id: decoded.userId });
 
@@ -99,7 +94,7 @@ class AuthService {
                 throw new Error("Invalid refresh token");
             }
 
-            const isTokenValid = await bcrypt.compare(refreshToken, user.refreshToken);
+            const isTokenValid = await compareValues(refreshToken, user.refreshToken);
 
             if (!isTokenValid) {
                 throw new Error("Invalid refresh token");
@@ -108,7 +103,7 @@ class AuthService {
             const newAccessToken = this.generateAccessToken(user.id, user.login, user.role);
             const newRefreshToken = this.generateRefreshToken(user.id, user.login, user.role);
 
-            const hashedRefreshToken = await this.hashToken(newRefreshToken);
+            const hashedRefreshToken = await hashValue(newRefreshToken);
             await this.repo.update({ id: user.id }, { refreshToken: hashedRefreshToken });
 
             return {
