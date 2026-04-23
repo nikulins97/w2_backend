@@ -33,7 +33,7 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('generateAccessToken', () => {
 
-        it('вызывает jwt.sign с правильными аргументами и возвращает токен', () => {
+        it('calls jwt.sign with correct arguments and returns the token', () => {
             jwt.sign.mockReturnValue('mocked-access-token');
 
             const token = service.generateAccessToken(1, 'john', 'EMPLOYEE');
@@ -50,7 +50,7 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('generateRefreshToken', () => {
 
-        it('вызывает jwt.sign с правильными аргументами и возвращает токен', () => {
+        it('calls jwt.sign with correct arguments and returns the token', () => {
             jwt.sign.mockReturnValue('mocked-refresh-token');
 
             const token = service.generateRefreshToken(1, 'john', 'EMPLOYEE');
@@ -67,7 +67,7 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('register', () => {
 
-        it('хеширует пароль и передаёт его в repo.create', async () => {
+        it('hashes the password and passes it to repo.create', async () => {
             bcrypt.hash.mockResolvedValue('hashed-password');
             mockRepo.create.mockResolvedValue({
                 id: 1, login: 'john', name: 'John',
@@ -84,7 +84,7 @@ describe('AuthService', () => {
             );
         });
 
-        it('возвращает пользователя без поля password', async () => {
+        it('returns the user without the password field', async () => {
             bcrypt.hash.mockResolvedValue('hashed-password');
             mockRepo.create.mockResolvedValue({
                 id: 1, login: 'john', name: 'John',
@@ -99,7 +99,7 @@ describe('AuthService', () => {
             expect(result).toEqual({ id: 1, login: 'john', name: 'John', surname: 'Doe', role: 'EMPLOYEE' });
         });
 
-        it('использует роль "EMPLOYEE" по умолчанию, если роль не передана', async () => {
+        it('defaults to the "EMPLOYEE" role when no role is provided', async () => {
             bcrypt.hash.mockResolvedValue('hashed-password');
             mockRepo.create.mockResolvedValue({
                 id: 1, login: 'john', name: 'John',
@@ -119,14 +119,14 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('login', () => {
 
-        it('выбрасывает ошибку "Invalid login", если пользователь не найден', async () => {
+        it('throws "Invalid login" when the user is not found', async () => {
             mockRepo.findUnique.mockResolvedValue(null);
 
             await expect(service.login('john', 'secret123'))
                 .rejects.toThrow('Invalid login');
         });
 
-        it('выбрасывает ошибку "Invalid password", если пароль неверный', async () => {
+        it('throws "Invalid password" when the password is incorrect', async () => {
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', password: 'hashed-password', role: 'EMPLOYEE',
             });
@@ -136,7 +136,7 @@ describe('AuthService', () => {
                 .rejects.toThrow('Invalid password');
         });
 
-        it('возвращает accessToken, refreshToken и user при успешном входе', async () => {
+        it('returns accessToken, refreshToken and user on successful login', async () => {
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', name: 'John', surname: 'Doe',
                 password: 'hashed-password', role: 'EMPLOYEE',
@@ -156,7 +156,7 @@ describe('AuthService', () => {
             });
         });
 
-        it('сохраняет хеш refreshToken в репозитории', async () => {
+        it('stores the refreshToken hash in the repository', async () => {
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', name: 'John', surname: 'Doe',
                 password: 'hashed-password', role: 'EMPLOYEE',
@@ -177,7 +177,7 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('logout', () => {
 
-        it('вызывает repo.update с refreshToken: null', async () => {
+        it('calls repo.update with refreshToken: null', async () => {
             mockRepo.update.mockResolvedValue({});
 
             await service.logout(5);
@@ -188,7 +188,7 @@ describe('AuthService', () => {
             );
         });
 
-        it('возвращает сообщение об успешном выходе', async () => {
+        it('returns a successful logout message', async () => {
             mockRepo.update.mockResolvedValue({});
 
             const result = await service.logout(5);
@@ -200,14 +200,14 @@ describe('AuthService', () => {
     // ------------------------------------------------------------------------
     describe('refresh', () => {
 
-        it('выбрасывает ошибку, если JWT невалидный или истёкший', async () => {
+        it('throws an error when the JWT is invalid or expired', async () => {
             jwt.verify.mockImplementation(() => { throw new Error('jwt expired'); });
 
             await expect(service.refresh('bad-token'))
                 .rejects.toThrow('Invalid or expired refresh token');
         });
 
-        it('выбрасывает ошибку, если пользователь не найден в БД', async () => {
+        it('throws an error when the user is not found in the database', async () => {
             jwt.verify.mockReturnValue({ userId: 99 });
             mockRepo.findUnique.mockResolvedValue(null);
 
@@ -215,7 +215,7 @@ describe('AuthService', () => {
                 .rejects.toThrow('Invalid or expired refresh token');
         });
 
-        it('выбрасывает ошибку, если refreshToken не сохранён в БД', async () => {
+        it('throws an error when no refreshToken is stored in the database', async () => {
             jwt.verify.mockReturnValue({ userId: 1 });
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', role: 'EMPLOYEE', refreshToken: null,
@@ -225,7 +225,7 @@ describe('AuthService', () => {
                 .rejects.toThrow('Invalid or expired refresh token');
         });
 
-        it('выбрасывает ошибку, если токен не совпадает с хешем в БД', async () => {
+        it('throws an error when the token does not match the stored hash', async () => {
             jwt.verify.mockReturnValue({ userId: 1 });
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', role: 'EMPLOYEE', refreshToken: 'stored-hash',
@@ -236,7 +236,7 @@ describe('AuthService', () => {
                 .rejects.toThrow('Invalid or expired refresh token');
         });
 
-        it('возвращает новые токены при успешном обновлении', async () => {
+        it('returns new tokens on successful refresh', async () => {
             jwt.verify.mockReturnValue({ userId: 1 });
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', role: 'EMPLOYEE', refreshToken: 'stored-hash',
@@ -255,7 +255,7 @@ describe('AuthService', () => {
             });
         });
 
-        it('сохраняет хеш нового refreshToken в репозитории', async () => {
+        it('stores the new refreshToken hash in the repository', async () => {
             jwt.verify.mockReturnValue({ userId: 1 });
             mockRepo.findUnique.mockResolvedValue({
                 id: 1, login: 'john', role: 'EMPLOYEE', refreshToken: 'stored-hash',
