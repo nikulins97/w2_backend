@@ -2,11 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser')
 const prisma = require('./db');
+const logger = require('./utils/logger');
+const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(requestLogger);
 
 const PORT = process.env.PORT || 3000;
 
@@ -31,21 +34,20 @@ app.get('/status', (req, res) => {
 const startServer = async () => {
     try {
         await prisma.$connect();
-        console.log('✓ Database connected');
+        logger.info('Database connected');
         
         app.listen(PORT, () => {
-            console.log(`✓ Server is running on port: ${PORT}`);
+            logger.info(`Server is running on port: ${PORT}`);
         });
     } catch (error) {
-        console.error('✗ Launch error:', error);
+        logger.error('Launch error', { error });
         process.exit(1);
     }
 };
 
 process.on('beforeExit', async () => {
     await prisma.$disconnect();
-    console.log('✓ Database disconnected');
+    logger.info('Database disconnected');
 })
 
 startServer();
-
