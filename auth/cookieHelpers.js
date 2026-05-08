@@ -7,8 +7,4 @@ function setRefreshTokenToCookie(res, refreshToken) {
   });
 }
 
-
-
-module.exports = {
-    setRefreshTokenToCookie,
-    };
+module.exports = { setRefreshTokenToCookie };

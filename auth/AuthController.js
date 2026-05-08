@@ -1,4 +1,4 @@
-const { setRefreshTokenToCookie } = require('./helpers');
+const { setRefreshTokenToCookie } = require('./cookieHelpers');
 
 class AuthController {
     constructor(authService) {
