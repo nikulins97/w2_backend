@@ -1,10 +1,42 @@
 services:
-  business:
-    build: .
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     env_file:
       - .env
     volumes:
-      - ./data:/data
+      - ./data/api:/data
+    restart: unless-stopped
+
+  business:
+    build:
+      context: ./business
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./business/.env
+    environment:
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    volumes:
+      - ./data/business:/data
+    restart: unless-stopped
+
+  tgbot:
+    build:
+      context: ./tgbot
+      dockerfile: Dockerfile
+    env_file:
+      - ./tgbot/.env
+    environment:
+      API_BASE_URL: http://api:3000
+      BUSINESS_BASE_URL: http://business:4000
+    ports:
+      - "4100:4100"
+    depends_on:
+      - api
+      - business
     restart: unless-stopped
