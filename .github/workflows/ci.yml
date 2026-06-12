@@ -8,8 +8,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  test:
-    name: Run tests
+  api-test:
+    name: Run API tests
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +26,29 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        run: npm test
+
+  tgbot-test:
+    name: Run tgbot checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: tgbot
+        run: npm install
+
+      - name: Typecheck
+        working-directory: tgbot
+        run: npm run typecheck
+
+      - name: Run tests
+        working-directory: tgbot
         run: npm test

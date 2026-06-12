@@ -1,0 +1,25 @@
+{
+  "name": "w2-tgbot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram UI microservice for w2",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsc -p tsconfig.json --watch",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/__tests__/*.test.js",
+    "smoke": "npm run build && node --test dist/__tests__/bootstrap.test.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "grammy": "^1.43.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
+}
