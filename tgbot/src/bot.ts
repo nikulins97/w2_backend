@@ -2,6 +2,8 @@ import { Bot } from 'grammy';
 import type { Logger } from 'winston';
 import type { ApiClient } from './clients/apiClient.js';
 import type { BusinessClient } from './clients/businessClient.js';
+import { registerHandlers } from './handlers.js';
+import { HandlerService } from './handlerService.js';
 
 type BotDeps = {
   apiClient: ApiClient;
@@ -12,27 +14,7 @@ type BotDeps = {
 export function createBot(token: string, deps: BotDeps): Bot {
   const bot = new Bot(token);
 
-  bot.command('start', async (ctx) => {
-    try {
-      const [apiStatus, businessStatus] = await Promise.all([
-        deps.apiClient.getStatus(),
-        deps.businessClient.getStatus(),
-      ]);
-
-      await ctx.reply(
-        [
-          'Tgbot is running.',
-          `API: ${apiStatus}`,
-          `Business: ${businessStatus}`,
-        ].join('\n')
-      );
-    } catch (error) {
-      deps.logger.warn('Tgbot status check failed', {
-        error: error instanceof Error ? error.message : error,
-      });
-      await ctx.reply('Tgbot is running, but service status check failed.');
-    }
-  });
+  registerHandlers(bot, new HandlerService(deps), deps.logger);
 
   bot.catch((error) => {
     deps.logger.error('Telegram handler failed', {
